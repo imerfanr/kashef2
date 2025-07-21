@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ویجت چت تشخیص ماینر</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chat-container { width: 300px; height: 400px; border: 1px solid #ccc; padding: 10px; }
+        #messages { height: 320px; overflow-y: scroll; }
+        #input { width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <input id="input" type="text" placeholder="پیام خود را وارد کنید...">
+        <select id="mode">
+            <option value="chat">چت</option>
+            <option value="execute">اجرای دستور</option>
+            <option value="analyze">تحلیل</option>
+        </select>
+        <button onclick="sendMessage()">ارسال</button>
+    </div>
+    <script>
+        const socket = io('http://localhost:5000');
+        socket.on('connect', () => {
+            console.log('متصل به سرور');
+        });
+        socket.on('chat', (data) => {
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<p>${data.message}</p>`;
+            messages.scrollTop = messages.scrollHeight;
+        });
+        socket.on('sensor_status', (data) => {
+            console.log('وضعیت حسگرها:', data);
+        });
+        socket.on('sensor_data', (data) => {
+            console.log('داده‌های حسگرها:', data);
+        });
+        socket.on('analysis_result', (data) => {
+            console.log('نتیجه تحلیل:', data);
+        });
+        function sendMessage() {
+            const input = document.getElementById('input');
+            const mode = document.getElementById('mode').value;
+            socket.emit('chat', { message: input.value, mode: mode });
+            input.value = '';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'962e2e01dc821e54',t:'MTc1MzEzNzQxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
